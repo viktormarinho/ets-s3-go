@@ -124,3 +124,33 @@ func UploadFile(c *gin.Context) {
 		"file": dbFile,
 	})
 }
+
+func getAllFiles(c *gin.Context) {
+	user, ok := c.MustGet("currentUser").(User)
+
+	if !ok {
+		c.AbortWithStatusJSON(500, gin.H{"error": "could not type cast internal context user object"})
+		return
+	}
+
+	if *user.RoleName != "ADMIN" {
+		c.AbortWithStatusJSON(401, gin.H{"message": "Unauthorized", "error": "Endpoint reserved to Admins"})
+		return
+	}
+
+	var files []models.File
+
+	result := models.DB.Find(&files)
+
+	if result.Error != nil {
+		c.AbortWithStatusJSON(500, gin.H{
+			"message": "error retrieving files",
+			"err":     result.Error.Error(),
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"files": files,
+	})
+}
