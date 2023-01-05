@@ -30,7 +30,7 @@ type AuthResponse struct {
 
 func main() {
 	router := gin.Default()
-
+	useful.EnsureDirectories()
 	models.ConnectDatabase()
 
 	router.Use(AuthMiddleware)
